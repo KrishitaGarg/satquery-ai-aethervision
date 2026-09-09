@@ -84,6 +84,45 @@ const WORKFLOW_STEPS = [
   },
 ];
 
+// Hand-placed parcel rectangles standing in for farmland/urban blocks on the
+// hero scene tile. Not randomized — deliberately arranged so nothing overlaps
+// the grounding box or the pivot cluster.
+const PARCELS = [
+  { x: 40, y: 62, w: 52, h: 36, o: 0.7 },
+  { x: 96, y: 62, w: 34, h: 36, o: 0.5 },
+  { x: 40, y: 102, w: 34, h: 44, o: 0.55 },
+  { x: 78, y: 106, w: 40, h: 40, o: 0.4 },
+  { x: 40, y: 150, w: 78, h: 30, o: 0.6 },
+  { x: 40, y: 184, w: 46, h: 40, o: 0.45 },
+  { x: 90, y: 184, w: 28, h: 40, o: 0.65 },
+  { x: 40, y: 228, w: 78, h: 34, o: 0.5 },
+  { x: 336, y: 62, w: 38, h: 30, o: 0.55 },
+  { x: 336, y: 96, w: 38, h: 34, o: 0.4 },
+  { x: 336, y: 134, w: 38, h: 40, o: 0.6 },
+  { x: 340, y: 232, w: 34, h: 30, o: 0.5 },
+  { x: 200, y: 240, w: 60, h: 34, o: 0.45 },
+  { x: 264, y: 244, w: 44, h: 30, o: 0.6 },
+];
+
+// Cluster of center-pivot irrigation circles inside the grounding box —
+// matches the "How many center-pivot fields" example query.
+const PIVOTS = [
+  { cx: 208, cy: 134, r: 15 },
+  { cx: 240, cy: 122, r: 11 },
+  { cx: 268, cy: 146, r: 13 },
+  { cx: 300, cy: 128, r: 9 },
+  { cx: 212, cy: 176, r: 12 },
+  { cx: 248, cy: 190, r: 10 },
+  { cx: 282, cy: 182, r: 14 },
+  { cx: 300, cy: 200, r: 8 },
+  { cx: 232, cy: 158, r: 8 },
+  { cx: 266, cy: 172, r: 7 },
+  { cx: 196, cy: 200, r: 9 },
+  { cx: 304, cy: 168, r: 10 },
+  { cx: 220, cy: 210, r: 7 },
+  { cx: 288, cy: 210, r: 8 },
+];
+
 interface AboutViewProps {
   onNavigateToAnalyze?: () => void;
 }
@@ -224,10 +263,33 @@ export const AboutView: React.FC<AboutViewProps> = ({
           animation: sq-hero-in 640ms cubic-bezier(0.16, 1, 0.3, 1) both;
         }
 
+        @keyframes sq-scan-move {
+          0% {
+            transform: translateY(0);
+            opacity: 0;
+          }
+          8% {
+            opacity: 0.5;
+          }
+          92% {
+            opacity: 0.5;
+          }
+          100% {
+            transform: translateY(248px);
+            opacity: 0;
+          }
+        }
+
+        .sq-scan {
+          transform-box: fill-box;
+          animation: sq-scan-move 4.5s ease-in-out infinite;
+        }
+
         @media (prefers-reduced-motion: reduce) {
           .sq-orbit-outer,
           .sq-orbit-inner,
-          .sq-hero-in {
+          .sq-hero-in,
+          .sq-scan {
             animation: none;
           }
         }
@@ -244,6 +306,11 @@ export const AboutView: React.FC<AboutViewProps> = ({
 
         .sq-row:hover {
           background: rgba(148, 163, 184, 0.035);
+        }
+
+        .sq-team-card:hover {
+          border-color: var(--accent-line);
+          background: var(--panel-soft);
         }
 
         @media (max-width: 640px) {
@@ -300,7 +367,7 @@ export const AboutView: React.FC<AboutViewProps> = ({
               </div>
             </div>
 
-            {/* Telemetry / orbit visual */}
+            {/* Scene grounding visual */}
             <div className="lg:col-span-5">
               <div
                 className="sq-corner relative rounded-md border p-4 sm:p-6"
@@ -310,287 +377,140 @@ export const AboutView: React.FC<AboutViewProps> = ({
                   viewBox="0 0 400 340"
                   className="w-full h-auto"
                   role="img"
-                  aria-label="SatQuery AI remote sensing visualization"
+                  aria-label="SatQuery AI grounding a query to a region on a satellite scene"
                 >
                   <defs>
-                    {/* Soft glow around the observation point */}
-                    <radialGradient id="sq-earth-glow" cx="50%" cy="50%" r="50%">
-                      <stop
-                        offset="0%"
-                        stopColor="var(--accent)"
-                        stopOpacity="0.18"
-                      />
-                      <stop
-                        offset="70%"
-                        stopColor="var(--accent)"
-                        stopOpacity="0.04"
-                      />
-                      <stop
-                        offset="100%"
-                        stopColor="var(--accent)"
-                        stopOpacity="0"
-                      />
-                    </radialGradient>
-
-                    {/* Subtle fade for orbit paths */}
-                    <linearGradient id="sq-orbit-fade" x1="0%" y1="0%" x2="100%" y2="100%">
-                      <stop
-                        offset="0%"
-                        stopColor="var(--ink-faint)"
-                        stopOpacity="0.12"
-                      />
-                      <stop
-                        offset="50%"
-                        stopColor="var(--ink-dim)"
-                        stopOpacity="0.32"
-                      />
-                      <stop
-                        offset="100%"
-                        stopColor="var(--ink-faint)"
-                        stopOpacity="0.08"
-                      />
+                    <linearGradient id="sq-tile-fade" x1="0%" y1="0%" x2="100%" y2="100%">
+                      <stop offset="0%" stopColor="var(--ink-faint)" stopOpacity="0.10" />
+                      <stop offset="100%" stopColor="var(--ink-faint)" stopOpacity="0.04" />
                     </linearGradient>
                   </defs>
 
                   {/* =========================================================
-                      ATMOSPHERIC GLOW
+                      SCENE TILE — procedural parcel field, stands in for an
+                      optical scene the model is reading
                       ========================================================= */}
-                  <circle
-                    cx="200"
-                    cy="170"
-                    r="88"
-                    fill="url(#sq-earth-glow)"
-                  />
+                  <rect x="26" y="46" width="348" height="248" rx="3" fill="url(#sq-tile-fade)" />
 
-                  {/* =========================================================
-                      ORBITAL PATHS
-                      ========================================================= */}
-
-                  <g className="sq-orbit-outer">
-                    <ellipse
-                      cx="200"
-                      cy="170"
-                      rx="150"
-                      ry="68"
-                      fill="none"
-                      stroke="url(#sq-orbit-fade)"
-                      strokeWidth="1"
-                      strokeDasharray="2 7"
-                    />
-                  </g>
-
-                  <g className="sq-orbit-inner">
-                    <ellipse
-                      cx="200"
-                      cy="170"
-                      rx="92"
-                      ry="112"
-                      fill="none"
-                      stroke="url(#sq-orbit-fade)"
-                      strokeWidth="1"
-                      strokeDasharray="2 7"
-                    />
-                  </g>
-
-                  {/* =========================================================
-                      CENTRAL EARTH / OBSERVATION NODE
-                      ========================================================= */}
-
-                  <circle
-                    cx="200"
-                    cy="170"
-                    r="38"
-                    fill="var(--accent-soft)"
-                    stroke="var(--accent-line)"
-                    strokeWidth="1"
-                  />
-
-                  <circle
-                    cx="200"
-                    cy="170"
-                    r="25"
-                    fill="none"
-                    stroke="var(--accent-line)"
-                    strokeWidth="0.75"
-                    strokeDasharray="1 4"
-                  />
-
-                  <circle
-                    cx="200"
-                    cy="170"
-                    r="3.5"
-                    fill="var(--accent)"
-                  />
-
-                  {/* =========================================================
-                      SATELLITE
-                      ========================================================= */}
-
-                  <g
-                    className="sq-orbit-outer"
-                    transform="translate(0, 0)"
-                  >
-                    <g transform="translate(310, 118)">
-                      {/* Satellite body */}
+                  <g stroke="var(--line-strong)" strokeWidth="0.75">
+                    {PARCELS.map((p, i) => (
                       <rect
-                        x="-5"
-                        y="-4"
-                        width="14"
-                        height="8"
-                        rx="1"
-                        fill="var(--panel)"
-                        stroke="var(--ink-dim)"
+                        key={i}
+                        x={p.x}
+                        y={p.y}
+                        width={p.w}
+                        height={p.h}
+                        fill={i % 3 === 0 ? 'var(--accent-soft)' : 'transparent'}
+                        opacity={p.o}
+                      />
+                    ))}
+                  </g>
+
+                  {/* River / linear feature cutting across the tile */}
+                  <path
+                    d="M26 210 C 110 190, 180 230, 260 200 S 340 175, 374 190"
+                    fill="none"
+                    stroke="var(--ink-faint)"
+                    strokeWidth="1.25"
+                    opacity="0.35"
+                  />
+
+                  {/* =========================================================
+                      CENTER-PIVOT FIELDS — the objects the example query
+                      is asking about
+                      ========================================================= */}
+                  {PIVOTS.map((c, i) => (
+                    <g key={i}>
+                      <circle
+                        cx={c.cx}
+                        cy={c.cy}
+                        r={c.r}
+                        fill="var(--accent-soft)"
+                        stroke="var(--accent-line)"
                         strokeWidth="1"
                       />
-
-                      {/* Solar panels */}
-                      <rect
-                        x="-13"
-                        y="-2.5"
-                        width="7"
-                        height="5"
-                        fill="var(--accent-soft)"
-                        stroke="var(--ink-dim)"
-                        strokeWidth="0.8"
-                      />
-
-                      <rect
-                        x="9"
-                        y="-2.5"
-                        width="7"
-                        height="5"
-                        fill="var(--accent-soft)"
-                        stroke="var(--ink-dim)"
-                        strokeWidth="0.8"
-                      />
-
-                      {/* Satellite signal / sensor */}
-                      <circle
-                        cx="2"
-                        cy="0"
-                        r="1.5"
-                        fill="var(--accent)"
-                      />
-
-                      <line
-                        x1="2"
-                        y1="4"
-                        x2="2"
-                        y2="8"
-                        stroke="var(--ink-dim)"
-                        strokeWidth="0.8"
-                      />
+                      <circle cx={c.cx} cy={c.cy} r="1.6" fill="var(--accent)" />
                     </g>
+                  ))}
+
+                  {/* =========================================================
+                      GROUNDING BOX — the model's answer, drawn on the scene
+                      ========================================================= */}
+                  <rect
+                    x="176"
+                    y="104"
+                    width="146"
+                    height="118"
+                    rx="4"
+                    fill="none"
+                    stroke="var(--accent)"
+                    strokeWidth="1.5"
+                    strokeDasharray="4 3"
+                  />
+                  {/* Corner ticks on the grounding box */}
+                  <g stroke="var(--accent)" strokeWidth="1.5">
+                    <path d="M176 116 V104 H188" fill="none" />
+                    <path d="M310 104 H322 V116" fill="none" />
+                    <path d="M322 210 V222 H310" fill="none" />
+                    <path d="M188 222 H176 V210" fill="none" />
+                  </g>
+
+                  {/* Result tag anchored to the box */}
+                  <g transform="translate(176, 84)">
+                    <rect
+                      x="0"
+                      y="0"
+                      width="88"
+                      height="18"
+                      rx="2"
+                      fill="var(--accent)"
+                    />
+                    <text
+                      x="8"
+                      y="12.5"
+                      fontSize="9.5"
+                      className="sq-mono"
+                      fill="var(--bg)"
+                      letterSpacing="0.4"
+                    >
+                      14 FIELDS · 92%
+                    </text>
                   </g>
 
                   {/* =========================================================
-                      SMALL OBSERVATION MARKERS
+                      SCAN LINE — one continuous, deliberate motion
                       ========================================================= */}
-
-                  <g opacity="0.8">
-                    <circle
-                      cx="112"
-                      cy="142"
-                      r="2"
-                      fill="var(--accent)"
-                    />
-
-                    <circle
-                      cx="286"
-                      cy="224"
-                      r="1.8"
-                      fill="var(--accent)"
-                    />
-
-                    <circle
-                      cx="157"
-                      cy="274"
-                      r="1.5"
-                      fill="var(--ink-dim)"
-                    />
-                  </g>
+                  <line
+                    x1="26"
+                    x2="374"
+                    y1="46"
+                    y2="46"
+                    stroke="var(--accent)"
+                    strokeWidth="1"
+                    opacity="0.5"
+                    className="sq-scan"
+                  />
 
                   {/* =========================================================
                       TECHNICAL LABELS
                       ========================================================= */}
-
                   <g className="sq-mono">
-                    <text
-                      x="24"
-                      y="34"
-                      fontSize="9"
-                      letterSpacing="1.5"
-                      fill="var(--ink-faint)"
-                    >
-                      EARTH OBSERVATION
+                    <text x="26" y="34" fontSize="9" letterSpacing="1.2" fill="var(--ink-faint)">
+                      SCENE TILE · 4.2 KM²
                     </text>
-
-                    <text
-                      x="24"
-                      y="50"
-                      fontSize="9"
-                      letterSpacing="1"
-                      fill="var(--ink-faint)"
-                    >
-                      MULTIMODAL ANALYSIS
-                    </text>
-
-                    <text
-                      x="260"
-                      y="292"
-                      fontSize="9"
-                      letterSpacing="1.2"
-                      fill="var(--ink-faint)"
-                    >
-                      OPTICAL · SAR
-                    </text>
-
-                    <text
-                      x="260"
-                      y="308"
-                      fontSize="9"
-                      letterSpacing="1.2"
-                      fill="var(--ink-faint)"
-                    >
-                      QUERY → INSIGHT
+                    <text x="374" y="34" fontSize="9" letterSpacing="1" fill="var(--ink-faint)" textAnchor="end">
+                      REGION GROUNDING
                     </text>
                   </g>
 
                   {/* =========================================================
                       CORNER REGISTRATION MARKS
                       ========================================================= */}
-
-                  <g
-                    stroke="var(--accent-line)"
-                    strokeWidth="1"
-                    fill="none"
-                  >
-                    {/* Top-left */}
+                  <g stroke="var(--accent-line)" strokeWidth="1" fill="none">
                     <path d="M14 24 V14 H24" />
-
-                    {/* Top-right */}
                     <path d="M376 24 V14 H366" />
-
-                    {/* Bottom-left */}
                     <path d="M14 316 V326 H24" />
-
-                    {/* Bottom-right */}
                     <path d="M376 316 V326 H366" />
-                  </g>
-
-                  {/* =========================================================
-                      CENTER CROSSHAIR
-                      ========================================================= */}
-
-                  <g
-                    stroke="var(--accent-line)"
-                    strokeWidth="0.75"
-                    opacity="0.55"
-                  >
-                    <line x1="194" y1="170" x2="187" y2="170" />
-                    <line x1="206" y1="170" x2="213" y2="170" />
-                    <line x1="200" y1="164" x2="200" y2="157" />
-                    <line x1="200" y1="176" x2="200" y2="183" />
                   </g>
                 </svg>
 
@@ -923,7 +843,7 @@ export const AboutView: React.FC<AboutViewProps> = ({
                 </span>
               </div>
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2">
                 {[
                   {
                     name: 'Krishita Garg',
@@ -958,7 +878,7 @@ export const AboutView: React.FC<AboutViewProps> = ({
                 ].map((member) => (
                   <div
                     key={member.name}
-                    className="group flex items-center justify-between gap-3 rounded border px-3 py-3 transition-colors"
+                    className="sq-team-card group flex items-center justify-between gap-3 rounded border px-3 py-3 transition-colors"
                     style={{
                       borderColor: 'var(--line)',
                       background: 'var(--panel)',
