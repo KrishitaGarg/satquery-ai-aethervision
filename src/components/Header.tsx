@@ -34,7 +34,7 @@ export const Header: React.FC<HeaderProps> = ({
         {/* Brand & Tabs */}
         <div className="flex items-center gap-6">
           <button
-            onClick={() => setActiveTab('analyze')}
+            onClick={() => setActiveTab('about')}
             className="flex items-center gap-2.5 text-left focus:outline-none"
             aria-label="SatQuery AI"
           >
@@ -63,6 +63,18 @@ export const Header: React.FC<HeaderProps> = ({
           {/* Navigation Tabs */}
           <nav className="hidden sm:flex items-center gap-1 border-l border-slate-200 dark:border-slate-800 pl-4 h-5">
             <button
+              id="nav-tab-about"
+              onClick={() => setActiveTab('about')}
+              className={`px-2.5 py-1 text-xs rounded transition-colors ${
+                activeTab === 'about'
+                  ? 'text-slate-900 dark:text-white font-medium bg-slate-100 dark:bg-slate-800'
+                  : 'text-slate-500 hover:text-slate-900 dark:hover:text-white'
+              }`}
+            >
+              Home
+            </button>
+
+            <button
               id="nav-tab-analyze"
               onClick={() => setActiveTab('analyze')}
               className={`px-2.5 py-1 text-xs rounded transition-colors ${
@@ -90,23 +102,19 @@ export const Header: React.FC<HeaderProps> = ({
                 </span>
               )}
             </button>
-
-            <button
-              id="nav-tab-about"
-              onClick={() => setActiveTab('about')}
-              className={`px-2.5 py-1 text-xs rounded transition-colors ${
-                activeTab === 'about'
-                  ? 'text-slate-900 dark:text-white font-medium bg-slate-100 dark:bg-slate-800'
-                  : 'text-slate-500 hover:text-slate-900 dark:hover:text-white'
-              }`}
-            >
-              About
-            </button>
           </nav>
         </div>
 
         {/* Mobile Navigation */}
         <div className="flex sm:hidden items-center gap-1">
+          <button
+            onClick={() => setActiveTab('about')}
+            className={`px-2 py-0.5 text-xs rounded ${
+              activeTab === 'about' ? 'bg-slate-100 dark:bg-slate-800 font-medium' : 'text-slate-500'
+            }`}
+          >
+            Home
+          </button>
           <button
             onClick={() => setActiveTab('analyze')}
             className={`px-2 py-0.5 text-xs rounded ${
@@ -122,14 +130,6 @@ export const Header: React.FC<HeaderProps> = ({
             }`}
           >
             History {historyCount > 0 ? `(${historyCount})` : ''}
-          </button>
-          <button
-            onClick={() => setActiveTab('about')}
-            className={`px-2 py-0.5 text-xs rounded ${
-              activeTab === 'about' ? 'bg-slate-100 dark:bg-slate-800 font-medium' : 'text-slate-500'
-            }`}
-          >
-            About
           </button>
         </div>
 

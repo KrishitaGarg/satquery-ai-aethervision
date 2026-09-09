@@ -34,7 +34,7 @@ export default function App() {
   });
 
   // Navigation tab
-  const [activeTab, setActiveTab] = useState<'analyze' | 'history' | 'about'>('analyze');
+  const [activeTab, setActiveTab] = useState<'analyze' | 'history' | 'about'>('about');
 
   // Staged Images & Query
   const [uploadedImages, setUploadedImages] = useState<UploadedImage[]>([]);
