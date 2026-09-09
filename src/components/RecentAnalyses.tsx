@@ -1,133 +1,192 @@
 import React from 'react';
-import { 
-  Trash2, 
-  ArrowRight
-} from 'lucide-react';
+import { Trash2, ArrowRight, History } from 'lucide-react';
 import { AnalysisHistoryItem } from '../types';
-import { 
-  formatConfidence, 
-  getTaskLabel 
-} from '../utils/formatters';
+
+const formatConfidence = (c: number) => `${Math.round(c * 100)}% conf`;
+const getTaskLabel = (t: string) => t;
 
 interface RecentAnalysesProps {
   history: AnalysisHistoryItem[];
-  onSelectHistoryItem: (item: AnalysisHistoryItem) => void;
-  onClearHistory: () => void;
-  onDeleteItem: (id: string) => void;
+  onSelectHistoryItem?: (item: AnalysisHistoryItem) => void;
+  onClearHistory?: () => void;
+  onDeleteItem?: (id: string) => void;
 }
 
-export const RecentAnalyses: React.FC<RecentAnalysesProps> = ({
+export const RecentAnalyses = ({
   history,
-  onSelectHistoryItem,
-  onClearHistory,
-  onDeleteItem,
-}) => {
-  if (history.length === 0) {
-    return (
-      <div className="border border-slate-200 dark:border-slate-800 rounded-lg bg-white dark:bg-[#0e131f] p-8 text-center max-w-lg mx-auto">
-        <p className="text-sm font-medium text-slate-800 dark:text-slate-200 mb-1">
-          No analysis history yet
-        </p>
-        <p className="text-xs text-slate-500 dark:text-slate-400">
-          Analyses conducted during your session will be saved locally.
-        </p>
-      </div>
-    );
-  }
-
+  onSelectHistoryItem = () => {},
+  onClearHistory = () => {},
+  onDeleteItem = () => {},
+}: RecentAnalysesProps) => {
   return (
-    <div className="border border-slate-200 dark:border-slate-800 rounded-lg bg-white dark:bg-[#0e131f] p-5 sm:p-6 transition-colors max-w-4xl w-full mx-auto">
-      {/* Header */}
-      <div className="flex items-center justify-between pb-3 border-b border-slate-100 dark:border-slate-800/80 mb-4">
-        <div>
-          <h2 className="text-sm font-semibold text-slate-900 dark:text-slate-100">
-            Analysis History
-          </h2>
-          <p className="text-xs text-slate-500 dark:text-slate-400">
-            {history.length} {history.length === 1 ? 'record' : 'records'} stored locally
+    <div className="sq-history">
+      <style>{`
+        .sq-history {
+          --bg: #070b12;
+          --panel: #0c121c;
+          --line: rgba(148, 163, 184, 0.14);
+          --line-strong: rgba(148, 163, 184, 0.26);
+          --ink: #eaeef4;
+          --ink-dim: #97a3b6;
+          --ink-faint: #5c6b81;
+          --accent: #3ddc9b;
+          --accent-soft: rgba(61, 220, 155, 0.12);
+          --accent-line: rgba(61, 220, 155, 0.35);
+          --rose: #fb7185;
+          font-family: 'Space Grotesk', 'Inter', system-ui, sans-serif;
+          max-width: 56rem;
+          width: 100%;
+          margin: 0 auto;
+        }
+        .sq-history * { box-sizing: border-box; }
+        .sq-h-mono { font-family: 'IBM Plex Mono', ui-monospace, monospace; }
+        .sq-h-corner { position: relative; }
+        .sq-h-corner::before, .sq-h-corner::after {
+          content: '';
+          position: absolute;
+          width: 12px;
+          height: 12px;
+          border-color: var(--accent-line);
+        }
+        .sq-h-corner::before { top: -1px; left: -1px; border-top: 1.5px solid; border-left: 1.5px solid; }
+        .sq-h-corner::after { bottom: -1px; right: -1px; border-bottom: 1.5px solid; border-right: 1.5px solid; }
+        .sq-h-row { transition: background-color 0.15s ease; }
+        .sq-h-row:hover { background: rgba(148, 163, 184, 0.04); }
+        .sq-h-restore { transition: background-color 0.15s ease, color 0.15s ease; }
+        .sq-h-restore:hover { background: var(--accent); color: #070b12; }
+        .sq-h-delete { transition: color 0.15s ease, border-color 0.15s ease; }
+        .sq-h-delete:hover { color: var(--rose); border-color: rgba(251, 113, 133, 0.4); }
+        .sq-h-clear:hover { color: var(--rose); }
+      `}</style>
+
+      {history.length === 0 ? (
+        <div
+          className="sq-h-corner rounded-md border p-10 text-center"
+          style={{ borderColor: 'var(--line)', background: 'var(--panel)' }}
+        >
+          <History className="w-4 h-4 mx-auto mb-3" style={{ color: 'var(--ink-faint)' }} />
+          <p className="text-sm font-medium" style={{ color: 'var(--ink)' }}>
+            No records logged yet
+          </p>
+          <p className="text-xs mt-1" style={{ color: 'var(--ink-dim)' }}>
+            Analyses you run this session are saved here, locally.
           </p>
         </div>
-
-        <button
-          onClick={onClearHistory}
-          className="text-xs text-slate-500 hover:text-rose-600 dark:text-slate-400 dark:hover:text-rose-400 flex items-center gap-1 px-2 py-1 rounded hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+      ) : (
+        <div
+          className="sq-h-corner rounded-md border"
+          style={{ borderColor: 'var(--line)', background: 'var(--panel)' }}
         >
-          <Trash2 className="w-3.5 h-3.5" />
-          <span>Clear all</span>
-        </button>
-      </div>
-
-      {/* History Items List */}
-      <div className="divide-y divide-slate-100 dark:divide-slate-800/60">
-        {history.map((item) => {
-          const taskLabel = getTaskLabel(item.taskSelected);
-          const timeFormatted = new Date(item.timestamp).toLocaleTimeString([], {
-            hour: '2-digit',
-            minute: '2-digit',
-          });
-          const dateFormatted = new Date(item.timestamp).toLocaleDateString([], {
-            month: 'short',
-            day: 'numeric',
-          });
-
-          return (
-            <div
-              key={item.id}
-              className="py-3 sm:py-3.5 flex flex-col sm:flex-row sm:items-center justify-between gap-3 group"
-            >
-              <div className="flex-1 min-w-0">
-                {/* Meta row */}
-                <div className="flex flex-wrap items-center gap-2 mb-1 text-xs">
-                  <span className="font-medium text-slate-800 dark:text-slate-200 bg-slate-100 dark:bg-slate-800 px-2 py-0.2 rounded text-[11px]">
-                    {taskLabel}
-                  </span>
-
-                  <span className="font-mono text-[11px] text-slate-400">
-                    {formatConfidence(item.confidence)}
-                  </span>
-
-                  <span className="font-mono text-[11px] text-slate-400">
-                    {item.imagesProvided} {item.imagesProvided === 1 ? 'image' : 'images'}
-                  </span>
-
-                  <span className="text-[11px] text-slate-400">
-                    {dateFormatted} {timeFormatted}
-                  </span>
-                </div>
-
-                {/* Question */}
-                <p className="text-xs sm:text-sm font-medium text-slate-900 dark:text-slate-100 truncate mb-0.5">
-                  &ldquo;{item.query}&rdquo;
-                </p>
-
-                {/* Answer excerpt */}
-                <p className="text-xs text-slate-500 dark:text-slate-400 line-clamp-1">
-                  {item.answer}
-                </p>
-              </div>
-
-              {/* Actions */}
-              <div className="flex items-center gap-1.5 shrink-0 self-end sm:self-center">
-                <button
-                  onClick={() => onSelectHistoryItem(item)}
-                  className="px-2.5 py-1 rounded text-xs font-medium bg-slate-900 dark:bg-slate-100 text-white dark:text-slate-900 hover:bg-slate-800 dark:hover:bg-white flex items-center gap-1 transition-colors"
-                >
-                  <span>Restore</span>
-                  <ArrowRight className="w-3 h-3" />
-                </button>
-
-                <button
-                  onClick={() => onDeleteItem(item.id)}
-                  className="p-1 rounded text-slate-400 hover:text-rose-500 transition-colors"
-                  title="Delete record"
-                >
-                  <Trash2 className="w-3.5 h-3.5" />
-                </button>
-              </div>
+          {/* Header */}
+          <div
+            className="flex items-center justify-between px-5 sm:px-6 py-4"
+            style={{ borderBottom: '1px solid var(--line)' }}
+          >
+            <div>
+              <h2 className="text-sm font-semibold" style={{ color: 'var(--ink)' }}>
+                Analysis history
+              </h2>
+              <p className="sq-h-mono text-[11px] mt-0.5" style={{ color: 'var(--ink-faint)' }}>
+                {history.length} {history.length === 1 ? 'record' : 'records'} · stored locally
+              </p>
             </div>
-          );
-        })}
-      </div>
+
+            <button
+              onClick={onClearHistory}
+              className="sq-h-clear text-xs flex items-center gap-1.5 px-2.5 py-1.5 rounded transition-colors"
+              style={{ color: 'var(--ink-dim)' }}
+            >
+              <Trash2 className="w-3.5 h-3.5" />
+              <span>Clear all</span>
+            </button>
+          </div>
+
+          {/* Rows */}
+          <div>
+            {history.map((item, i) => {
+              const taskLabel = getTaskLabel(item.taskSelected);
+              const timeFormatted = new Date(item.timestamp).toLocaleTimeString([], {
+                hour: '2-digit',
+                minute: '2-digit',
+              });
+              const dateFormatted = new Date(item.timestamp).toLocaleDateString([], {
+                month: 'short',
+                day: 'numeric',
+              });
+
+              return (
+                <div
+                  key={item.id}
+                  className="sq-h-row flex flex-col sm:flex-row sm:items-center justify-between gap-3 px-5 sm:px-6 py-4"
+                  style={{ borderBottom: i === history.length - 1 ? 'none' : '1px solid var(--line)' }}
+                >
+                  <div className="flex-1 min-w-0">
+                    {/* Meta row */}
+                    <div className="flex flex-wrap items-center gap-2.5 mb-1.5">
+                      <span
+                        className="sq-h-mono text-[10px] px-2 py-0.5 rounded-full border"
+                        style={{ color: 'var(--accent)', borderColor: 'var(--accent-line)', background: 'var(--accent-soft)' }}
+                      >
+                        {taskLabel}
+                      </span>
+                      <span className="sq-h-mono text-[11px]" style={{ color: 'var(--ink-faint)' }}>
+                        {formatConfidence(item.confidence)}
+                      </span>
+                      <span className="sq-h-mono text-[11px]" style={{ color: 'var(--ink-faint)' }}>
+                        {item.imagesProvided} {item.imagesProvided === 1 ? 'image' : 'images'}
+                      </span>
+                      <span className="text-[11px]" style={{ color: 'var(--ink-faint)' }}>
+                        {dateFormatted} · {timeFormatted}
+                      </span>
+                    </div>
+
+                    {/* Question */}
+                    <p className="text-sm font-medium truncate mb-0.5" style={{ color: 'var(--ink)' }}>
+                      &ldquo;{item.query}&rdquo;
+                    </p>
+
+                    {/* Answer excerpt */}
+                    <p
+                      className="text-xs overflow-hidden"
+                      style={{
+                        color: 'var(--ink-dim)',
+                        display: '-webkit-box',
+                        WebkitLineClamp: 1,
+                        WebkitBoxOrient: 'vertical',
+                      }}
+                    >
+                      {item.answer}
+                    </p>
+                  </div>
+
+                  {/* Actions */}
+                  <div className="flex items-center gap-2 shrink-0 self-end sm:self-center">
+                    <button
+                      onClick={() => onSelectHistoryItem(item)}
+                      className="sq-h-restore flex items-center gap-1.5 px-3 py-1.5 rounded text-xs font-medium"
+                      style={{ background: 'var(--ink)', color: '#070b12' }}
+                    >
+                      <span>Restore</span>
+                      <ArrowRight className="w-3 h-3" />
+                    </button>
+
+                    <button
+                      onClick={() => onDeleteItem(item.id)}
+                      className="sq-h-delete p-1.5 rounded border"
+                      style={{ color: 'var(--ink-faint)', borderColor: 'var(--line)' }}
+                      title="Delete record"
+                    >
+                      <Trash2 className="w-3.5 h-3.5" />
+                    </button>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      )}
     </div>
   );
 };
+
+export default RecentAnalyses;
