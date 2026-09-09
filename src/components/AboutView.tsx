@@ -8,6 +8,9 @@ import {
   Bot,
   ArrowRight,
   Satellite,
+  UploadCloud,
+  MessageSquareText,
+  CheckCircle2,
 } from 'lucide-react';
 
 const CAPABILITIES = [
@@ -61,6 +64,24 @@ const FOCUS_AREAS = [
   'Bi-temporal change modeling',
   'Optical + SAR synthesis',
   'Autonomous agent routing',
+];
+
+const WORKFLOW_STEPS = [
+  {
+    icon: UploadCloud,
+    title: 'Upload a scene',
+    body: 'Drop in optical, multispectral, or SAR imagery — no format conversion needed.',
+  },
+  {
+    icon: MessageSquareText,
+    title: 'Ask in plain language',
+    body: 'Skip the pipeline. Type the question the way you would ask a colleague.',
+  },
+  {
+    icon: CheckCircle2,
+    title: 'Get a grounded answer',
+    body: 'Routed to the right tool and returned with spatial evidence and a confidence score.',
+  },
 ];
 
 interface AboutViewProps {
@@ -188,9 +209,25 @@ export const AboutView: React.FC<AboutViewProps> = ({
           transform-origin: 200px 170px;
         }
 
+        @keyframes sq-hero-in {
+          from {
+            opacity: 0;
+            transform: translateY(10px);
+          }
+          to {
+            opacity: 1;
+            transform: translateY(0);
+          }
+        }
+
+        .sq-hero-in {
+          animation: sq-hero-in 640ms cubic-bezier(0.16, 1, 0.3, 1) both;
+        }
+
         @media (prefers-reduced-motion: reduce) {
           .sq-orbit-outer,
-          .sq-orbit-inner {
+          .sq-orbit-inner,
+          .sq-hero-in {
             animation: none;
           }
         }
@@ -219,7 +256,7 @@ export const AboutView: React.FC<AboutViewProps> = ({
 
         {/* ============ HERO ============ */}
         <section className="pt-14 sm:pt-20 pb-16 sm:pb-24">
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-6 items-center">
+          <div className="sq-hero-in grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-6 items-center">
 
             <div className="lg:col-span-7 space-y-6">
               <div className="flex items-center gap-2">
@@ -556,6 +593,23 @@ export const AboutView: React.FC<AboutViewProps> = ({
                     <line x1="200" y1="176" x2="200" y2="183" />
                   </g>
                 </svg>
+
+                {/* Live query preview */}
+                <div
+                  className="mt-4 pt-4 border-t flex items-center justify-between gap-3"
+                  style={{ borderColor: 'var(--line)' }}
+                >
+                  <p className="text-[12px] truncate" style={{ color: 'var(--ink-dim)' }}>
+                    "How many center-pivot fields are visible?"
+                  </p>
+                  <div
+                    className="shrink-0 flex items-center gap-1.5 sq-mono text-[11px] px-2 py-1 rounded"
+                    style={{ background: 'var(--accent-soft)', color: 'var(--accent)' }}
+                  >
+                    <CheckCircle2 className="w-3 h-3" />
+                    14 fields · 92%
+                  </div>
+                </div>
               </div>
             </div>
 
@@ -613,14 +667,19 @@ export const AboutView: React.FC<AboutViewProps> = ({
                 return (
                   <div
                     key={cap.code}
-                    className="sq-row p-5 sm:p-6 flex gap-4 transition-colors"
+                    className="sq-row group p-5 sm:p-6 flex gap-4 transition-colors"
                     style={{
                       borderRight: isLastCol ? 'none' : '1px solid var(--line)',
                       borderBottom: isLastRow ? 'none' : '1px solid var(--line)',
                     }}
                   >
                     <div className="flex flex-col items-start gap-2 shrink-0 w-10">
-                      <Icon className="w-4 h-4" style={{ color: 'var(--accent)' }} />
+                      <div
+                        className="w-8 h-8 rounded-md flex items-center justify-center transition-transform duration-200 group-hover:scale-105"
+                        style={{ background: 'var(--accent-soft)', border: '1px solid var(--accent-line)' }}
+                      >
+                        <Icon className="w-4 h-4" style={{ color: 'var(--accent)' }} />
+                      </div>
                       <span className="sq-mono text-[10px]" style={{ color: 'var(--ink-faint)' }}>
                         {cap.code}
                       </span>
@@ -645,10 +704,29 @@ export const AboutView: React.FC<AboutViewProps> = ({
           <h2 className="text-xl font-semibold mb-8" style={{ color: 'var(--ink)' }}>
             Why it matters
           </h2>
-          <div className="grid grid-cols-1 sm:grid-cols-2 rounded-md border overflow-hidden" style={{ borderColor: 'var(--line)' }}>
-            <div className="p-6 sm:p-8 space-y-3" style={{ borderRight: '1px solid var(--line)', background: 'var(--panel-soft)' }}>
-              <span className="sq-mono text-[11px]" style={{ color: 'var(--ink-faint)' }}>Without SatQuery</span>
-              <p className="text-sm leading-relaxed" style={{ color: 'var(--ink-dim)' }}>
+
+          <div
+            className="grid grid-cols-1 sm:grid-cols-2 rounded-md border overflow-hidden"
+            style={{ borderColor: 'var(--line)' }}
+          >
+            <div
+              className="p-6 sm:p-8"
+              style={{
+                borderRight: '1px solid var(--line)',
+                background: 'var(--panel-soft)',
+              }}
+            >
+              <span
+                className="sq-mono text-[11px]"
+                style={{ color: 'var(--ink-faint)' }}
+              >
+                Without SatQuery
+              </span>
+
+              <p
+                className="text-sm leading-relaxed mt-3"
+                style={{ color: 'var(--ink-dim)' }}
+              >
                 Earth observation work usually means a heavy desktop GIS suite,
                 manual spectral band combinations, and file-format wrangling
                 before you can answer even a simple question about a scene.
@@ -662,6 +740,55 @@ export const AboutView: React.FC<AboutViewProps> = ({
                 grounding and a confidence score attached.
               </p>
             </div>
+          </div>
+        </section>
+
+        {/* ============ HOW IT WORKS ============ */}
+        <section className="py-14 sm:py-16 border-t" style={{ borderColor: 'var(--line)' }}>
+          <div className="mb-8 max-w-lg">
+            <h2 className="text-xl font-semibold" style={{ color: 'var(--ink)' }}>
+              From imagery to answer
+            </h2>
+            <p className="text-sm mt-2" style={{ color: 'var(--ink-dim)' }}>
+              No desktop GIS suite, no manual band math — three steps instead
+              of a pipeline.
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-px rounded-md border overflow-hidden" style={{ borderColor: 'var(--line)', background: 'var(--line)' }}>
+            {WORKFLOW_STEPS.map((step, i) => {
+              const Icon = step.icon;
+              return (
+                <div key={step.title} className="relative p-6 sm:p-7" style={{ background: 'var(--panel)' }}>
+                  <div className="flex items-center gap-2 mb-4">
+                    <div
+                      className="w-8 h-8 rounded-md flex items-center justify-center shrink-0"
+                      style={{ background: 'var(--accent-soft)', border: '1px solid var(--accent-line)' }}
+                    >
+                      <Icon className="w-4 h-4" style={{ color: 'var(--accent)' }} />
+                    </div>
+                    <span className="sq-mono text-[11px]" style={{ color: 'var(--ink-faint)' }}>
+                      Step {i + 1}
+                    </span>
+                  </div>
+                  <h3 className="text-sm font-medium" style={{ color: 'var(--ink)' }}>
+                    {step.title}
+                  </h3>
+                  <p className="text-[13px] leading-relaxed mt-1.5" style={{ color: 'var(--ink-dim)' }}>
+                    {step.body}
+                  </p>
+
+                  {i < WORKFLOW_STEPS.length - 1 && (
+                    <div
+                      className="hidden sm:flex absolute top-1/2 -right-3 -translate-y-1/2 w-6 h-6 rounded-full items-center justify-center z-10"
+                      style={{ background: 'var(--bg)', border: '1px solid var(--line-strong)' }}
+                    >
+                      <ArrowRight className="w-3 h-3" style={{ color: 'var(--ink-faint)' }} />
+                    </div>
+                  )}
+                </div>
+              );
+            })}
           </div>
         </section>
 
