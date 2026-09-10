@@ -1,0 +1,10 @@
+{
+  "patch_id": "S2B_MSIL2A_20170808T094029_N9999_R036_T35ULA_70_47",
+  "s1_name": "S1A_IW_GRDH_1SDV_20170808T043524_35ULA_70_47",
+  "question": "Can you observe any moors, heathland, or sclerophyllous vegetation in the satellite image?",
+  "ground_truth": "no",
+  "model_answer": "no",
+  "canonical_ground_truth": "no",
+  "canonical_model_answer": "no",
+  "correct": true
+}

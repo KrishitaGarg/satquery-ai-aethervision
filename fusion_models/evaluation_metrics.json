@@ -1,0 +1,11 @@
+{
+  "validation_samples": 500,
+  "base_accuracy": 0.436,
+  "fine_tuned_accuracy": 0.728,
+  "absolute_change": 0.292,
+  "base_eval_seconds": 260.41533184051514,
+  "fine_tuned_eval_seconds": 144.01223254203796,
+  "improved_examples": 197,
+  "regressed_examples": 51,
+  "normalization": "normalized exact match with binary/MCQ output canonicalization"
+}

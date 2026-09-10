@@ -1,0 +1,15 @@
+{
+  "train_runtime": 16093.98,
+  "train_samples_per_second": 1.864,
+  "train_steps_per_second": 0.233,
+  "total_flos": 1.7437409836793856e+20,
+  "train_loss": 0.2319786519050598,
+  "epoch": 1.0,
+  "train_samples": 30000,
+  "train_unique_image_pairs": 4008,
+  "validation_samples": 500,
+  "global_step": 3750,
+  "expected_optimizer_steps": 3750,
+  "elapsed_hours_wall_clock": 4.470696461333169,
+  "peak_gpu_memory_gib": 3.083040714263916
+}

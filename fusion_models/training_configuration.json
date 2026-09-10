@@ -1,0 +1,48 @@
+{
+  "model_id": "OpenGVLab/InternVL3-1B-Instruct",
+  "model_revision": "f91c6391476dbc8fd07674d2589e8168d3ca667f",
+  "seed": 42,
+  "training_examples": 30000,
+  "validation_examples": 500,
+  "training_unique_patches": 4008,
+  "validation_unique_patches": 446,
+  "vqa_types": [
+    "binary",
+    "mcq"
+  ],
+  "vqa_categories": [
+    "presence",
+    "count",
+    "adjacency",
+    "area",
+    "relative pos"
+  ],
+  "image_size": 448,
+  "max_sequence_length": 1536,
+  "batch_size": 1,
+  "gradient_accumulation_steps": 8,
+  "epochs": 1,
+  "learning_rate": 5e-05,
+  "weight_decay": 0.01,
+  "warmup_ratio": 0.03,
+  "scheduler": "cosine",
+  "precision": "fp16",
+  "lora_r": 16,
+  "lora_alpha": 32,
+  "lora_dropout": 0.05,
+  "lora_targets": [
+    "q_proj",
+    "k_proj",
+    "v_proj",
+    "o_proj"
+  ],
+  "use_dora": false,
+  "vision_frozen": true,
+  "vision_gradient_checkpointing": false,
+  "language_gradient_checkpointing": true,
+  "save_steps": 250,
+  "save_total_limit": 2,
+  "transformers_version": "4.52.1",
+  "peft_version": "0.15.2",
+  "torch_version": "2.10.0+cu128"
+}

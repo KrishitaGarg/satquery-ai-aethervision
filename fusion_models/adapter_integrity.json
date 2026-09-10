@@ -1,0 +1,16 @@
+{
+  "adapter_file": "/kaggle/working/cross_modal_adapter_30k/adapter_model.safetensors",
+  "adapter_size_mib": 8.274085998535156,
+  "sha256": "c296f55912aa89204dd2ff980dc338cd06bc43eb922b5098d7feec166981ded2",
+  "lora_a_tensors": 96,
+  "lora_b_tensors": 96,
+  "minimum_lora_b_norm": 0.050053276121616364,
+  "maximum_lora_b_norm": 0.29573673009872437,
+  "target_modules": [
+    "k_proj",
+    "o_proj",
+    "q_proj",
+    "v_proj"
+  ],
+  "use_dora": false
+}

@@ -1,0 +1,5 @@
+{
+  "base_model_id": "OpenGVLab/InternVL3-1B-Instruct",
+  "architecture": "InternVLChatModel.language_model",
+  "image_size": 448
+}

@@ -1,0 +1,17 @@
+{
+  "task": "cross_modal_vqa",
+  "parent_model": "OpenGVLab/InternVL3-1B-Instruct",
+  "parent_revision": "f91c6391476dbc8fd07674d2589e8168d3ca667f",
+  "image_1": "Sentinel-2 optical B04/B03/B02",
+  "image_2": "Sentinel-1 SAR VV/VH/VV_div_VH",
+  "image_size": 448,
+  "num_images": 2,
+  "num_image_tokens_each": 256,
+  "lora_targets": [
+    "q_proj",
+    "k_proj",
+    "v_proj",
+    "o_proj"
+  ],
+  "use_dora": false
+}
