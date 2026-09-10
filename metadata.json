@@ -1,0 +1,5 @@
+{
+  "name": "SatQuery AI",
+  "description": "Agentic remote-sensing vision-language assistant for intelligent satellite imagery analysis by AetherVision.",
+  "requestFramePermissions": []
+}
