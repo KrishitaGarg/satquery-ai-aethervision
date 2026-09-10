@@ -8,6 +8,8 @@ import {
   FileType, 
   FileCode, 
   FileText,
+  FileDown,
+  Loader2,
   Maximize2,
   X,
   RotateCcw,
@@ -19,6 +21,7 @@ import {
   downloadReport, 
   formatFileSize 
 } from '../utils/formatters';
+import { downloadAnalysisReport } from '../utils/reportGenerator';
 
 interface ResultsPanelProps {
   response: BackendAskResponse;
@@ -37,6 +40,8 @@ export const ResultsPanel: React.FC<ResultsPanelProps> = ({
   const [showRawJson, setShowRawJson] = useState(false);
   const [selectedZoomImage, setSelectedZoomImage] = useState<UploadedImage | null>(null);
   const [loadErrors, setLoadErrors] = useState<Record<string, boolean>>({});
+  const [isGeneratingReport, setIsGeneratingReport] = useState(false);
+  const [reportError, setReportError] = useState<string | null>(null);
 
   const isTiffRaster = (name: string): boolean => {
     const lower = name.toLowerCase();
@@ -65,6 +70,22 @@ export const ResultsPanel: React.FC<ResultsPanelProps> = ({
   const handleDownload = (format: 'html' | 'json' | 'txt') => {
     setShowDownloadMenu(false);
     downloadReport(response, imageNames, format);
+  };
+
+  const handleDownloadPdfReport = async () => {
+    if (isGeneratingReport) return;
+    setShowDownloadMenu(false);
+    setReportError(null);
+    setIsGeneratingReport(true);
+    try {
+      await downloadAnalysisReport(response, uploadedImages);
+    } catch (err) {
+      setReportError(
+        err instanceof Error ? err.message : 'Could not generate the report. Please try again.'
+      );
+    } finally {
+      setIsGeneratingReport(false);
+    }
   };
 
   return (
@@ -134,15 +155,30 @@ export const ResultsPanel: React.FC<ResultsPanelProps> = ({
           <div className="relative">
             <button
               onClick={() => setShowDownloadMenu(!showDownloadMenu)}
-              className="px-2 py-1 rounded border border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors flex items-center gap-1 text-[11px]"
+              disabled={isGeneratingReport}
+              className="px-2 py-1 rounded border border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors flex items-center gap-1 text-[11px] disabled:opacity-70 disabled:cursor-not-allowed"
             >
-              <Download className="w-3 h-3 text-slate-400" />
-              <span>Export</span>
+              {isGeneratingReport ? (
+                <Loader2 className="w-3 h-3 text-slate-400 animate-spin" />
+              ) : (
+                <Download className="w-3 h-3 text-slate-400" />
+              )}
+              <span>{isGeneratingReport ? 'Building report\u2026' : 'Export'}</span>
               <ChevronDown className="w-2.5 h-2.5 text-slate-400" />
             </button>
 
             {showDownloadMenu && (
-              <div className="absolute right-0 mt-1 w-36 rounded bg-white dark:bg-[#0c1017] border border-slate-200 dark:border-slate-800 shadow-lg py-1 z-30">
+              <div className="absolute right-0 mt-1 w-52 rounded bg-white dark:bg-[#0c1017] border border-slate-200 dark:border-slate-800 shadow-lg py-1 z-30">
+                <button
+                  onClick={handleDownloadPdfReport}
+                  className="w-full text-left px-2.5 py-1.5 text-xs text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 flex items-center gap-1.5"
+                >
+                  <FileDown className="w-3 h-3 text-emerald-600 dark:text-emerald-400" />
+                  <span>PDF report <span className="text-slate-400 dark:text-slate-500"></span></span>
+                </button>
+
+                <div className="my-1 border-t border-slate-100 dark:border-slate-800/80" />
+
                 <button
                   onClick={() => handleDownload('html')}
                   className="w-full text-left px-2.5 py-1 text-xs text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 flex items-center gap-1.5"
@@ -169,6 +205,12 @@ export const ResultsPanel: React.FC<ResultsPanelProps> = ({
           </div>
         </div>
       </div>
+
+      {reportError && (
+        <div className="-mt-1 text-[11px] text-rose-600 dark:text-rose-400">
+          {reportError}
+        </div>
+      )}
 
       {/* 2. Visual Focal Point: The Generated Answer */}
       <div className="rounded-md bg-slate-50/70 dark:bg-[#070b13] border border-slate-200/90 dark:border-slate-800/90 p-4 sm:p-5">
