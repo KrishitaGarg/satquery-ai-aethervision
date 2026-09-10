@@ -21,18 +21,21 @@ export interface SampleDataset {
  */
 export const SAMPLE_DATASETS: SampleDataset[] = [
   {
-    id: 'single-insat-thermal-ir',
-    name: 'Single Scene: INSAT-3DS Thermal IR',
+    id: 'single-remote-sensing-landcover',
+    name: 'Single Scene: Land-Cover Analysis',
     category: 'single',
     badge: '1. Single Image',
-    suggestedQuery: 'Where is the most significant cloud cover concentrated in this thermal infrared image?',
-    description: 'INSAT-3DS full-disk thermal infrared capture over the Indian subcontinent, showing cloud-top temperature contrast.',
+    suggestedQuery:
+      'Describe this remote-sensing image in detail.',
+    description:
+      'High-resolution optical remote-sensing imagery showing heterogeneous vegetation, agricultural or cleared terrain, settlements, and linear transportation features.',
     images: [
       {
-        filename: 'insat3ds_thermal_ir.jpg',
+        filename: 'remote_sensing_scene.jpeg',
         label: 'Single Image',
-        description: 'INSAT-3DS IMG, Thermal Infrared1 @ 10.83 µm, L1C Mercator projection',
-        src: '/samples/scene.jpg',
+        description:
+          'Optical remote-sensing capture showing forested/vegetated terrain, patterned agricultural or cleared areas, settlements, and roads.',
+        src: '/samples/scene.jpeg',
       },
     ],
   },
